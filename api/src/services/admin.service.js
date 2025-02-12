@@ -64,7 +64,7 @@ const createAdmin = async (admin) => {
 
     const passwordHashed = await bcrypt.bcryptHash(admin.password);
     admin.password = passwordHashed;
-    admin.createAt = new Date();
+    // admin.createAt = new Date();
     await Admin.create(admin);
 
     return { status: true, message: "Account created successfully!" };
@@ -118,34 +118,35 @@ const getAdminById = async (id) => {
 
 const getAdminList = async (page, limit, filters) => {
   try {
+    const queryFilters = { ...filters };
+
+    // because filtering an ID, it needs to be converted to an array to match
+    // the Admin model
+    if (filters.roleId) {
+      queryFilters.roles = { $in: filters.roleId };
+      delete queryFilters.roleId;
+    }
+    if (filters.permissionId) {
+      queryFilters.permissions = { $in: filters.permissionId };
+      delete queryFilters.permissionId;
+    }
+
     const totalCountPromise = Admin.countDocuments(filters);
 
     let adminListPromise;
     if (page === 0 || limit === 0)
-      adminListPromise = Admin.find(filters)
+      adminListPromise = Admin.find(queryFilters)
         .select("-password")
-        .populate({
-          path: "roles",
-          model: "role",
-        })
-        .populate({
-          path: "permissions",
-          model: "permission",
-        })
+        .populate("roles", "name")
+        .populate("permissions", "name code actions")
         .lean();
     else
-      adminListPromise = Admin.find(filters)
+      adminListPromise = Admin.find(queryFilters)
         .select("-password")
         .skip((page - 1) * limit)
         .limit(limit)
-        .populate({
-          path: "roles",
-          model: "role",
-        })
-        .populate({
-          path: "permissions",
-          model: "permission",
-        })
+        .populate("roles", "name")
+        .populate("permissions", "name code actions")
         .lean();
 
     const [totalCount, adminList] = await Promise.all([
