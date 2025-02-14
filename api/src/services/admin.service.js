@@ -64,7 +64,6 @@ const createAdmin = async (admin) => {
 
     const passwordHashed = await bcrypt.bcryptHash(admin.password);
     admin.password = passwordHashed;
-    // admin.createAt = new Date();
     await Admin.create(admin);
 
     return { status: true, message: "Account created successfully!" };
@@ -101,7 +100,11 @@ const getAdminById = async (id) => {
       .select("-password")
       .populate({
         path: "roles",
-        model: "role",
+        populate: {
+          path: "permissions",
+          select: "name code actions",
+        },
+        select: "name permission",
       })
       .populate({
         path: "permissions",
@@ -131,34 +134,39 @@ const getAdminList = async (page, limit, filters) => {
       delete queryFilters.permissionId;
     }
 
-    const totalCountPromise = Admin.countDocuments(filters);
-
-    let adminListPromise;
+    let adminList;
     if (page === 0 || limit === 0)
-      adminListPromise = Admin.find(queryFilters)
+      adminList = await Admin.find(queryFilters)
         .select("-password")
-        .populate("roles", "name")
+        .populate({
+          path: "roles",
+          populate: {
+            path: "permissions",
+            select: "name code actions",
+          },
+          select: "name permission",
+        })
         .populate("permissions", "name code actions")
         .lean();
     else
-      adminListPromise = Admin.find(queryFilters)
+      adminList = await Admin.find(queryFilters)
         .select("-password")
         .skip((page - 1) * limit)
         .limit(limit)
-        .populate("roles", "name")
+        .populate({
+          path: "roles",
+          populate: {
+            path: "permissions",
+            select: "name code actions",
+          },
+          select: "name permission",
+        })
         .populate("permissions", "name code actions")
         .lean();
 
-    const [totalCount, adminList] = await Promise.all([
-      totalCountPromise,
-      adminListPromise,
-    ]);
-
     return {
-      message: `Get admin list by limit: ${limit}, page: ${page} successfully!`,
-      page,
-      limit,
-      totalCount,
+      message: `Get admin list successfully!`,
+      count: adminList.length,
       data: adminList,
     };
   } catch (error) {
@@ -198,12 +206,13 @@ const updateAdmin = async (id, admin) => {
     const populatedAdmin = await Admin.findById(updatedAdmin._id)
       .populate({
         path: "roles",
-        model: "admin_role",
+        populate: {
+          path: "permissions",
+          select: "name code actions",
+        },
+        select: "name permission",
       })
-      .populate({
-        path: "permissions",
-        model: "admin_permission",
-      })
+      .populate("permissions")
       .select("-password")
       .lean();
 

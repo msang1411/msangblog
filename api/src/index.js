@@ -22,9 +22,9 @@ app.use(bodyParser.json());
 require("./db/primaryDB");
 
 // Routers
-app.use("api/v1/admin/", adminRouter);
-app.use("api/v1/role/", roleRouter);
-app.use("api/v1/permission/", permissionRouter);
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/role", roleRouter);
+app.use("/api/v1/permission", permissionRouter);
 
 // Middleware error handling
 app.use(errorHandlingMiddleware);

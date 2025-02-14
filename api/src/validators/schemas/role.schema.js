@@ -10,7 +10,7 @@ const roleCreateSchema = Joi.object().keys({
 });
 
 const roleFiltersSchema = Joi.object().keys({
-  name: Joi.string.optional(),
+  name: Joi.string().optional(),
   isActive: Joi.boolean().optional(),
   isDelete: Joi.boolean().default(false),
   permissions: Joi.array()

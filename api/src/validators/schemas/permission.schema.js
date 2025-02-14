@@ -9,7 +9,7 @@ const permissionCreateSchema = Joi.object().keys({
 });
 
 const permissionFiltersSchema = Joi.object().keys({
-  name: Joi.string.optional(),
+  name: Joi.string().optional(),
   code: Joi.string().optional(),
   isDelete: Joi.boolean().default(false),
   permissions: Joi.array()
@@ -20,6 +20,7 @@ const permissionFiltersSchema = Joi.object().keys({
 const permissionUpdateSchema = Joi.object().keys({
   name: Joi.string().optional(),
   description: Joi.string().optional(),
+  actions: Joi.array().items(Joi.object()).optional(),
   permissions: Joi.array()
     .items(Joi.string().regex(/^[0-9a-fA-F]{24}$/))
     .optional(),

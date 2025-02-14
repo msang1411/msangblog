@@ -17,12 +17,14 @@ const createPermission = async (permission) => {
           message:
             "Permission with this name or code already exists but is in deleted state!",
         };
+      return {
+        status: false,
+        message: "Permission with this name or code already exists.",
+      };
     }
 
-    return {
-      status: false,
-      message: "Permission with this name or code already exists.",
-    };
+    await Permission.create(permission);
+    return { status: true, message: "Permission created successfully!" };
   } catch (error) {
     throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -83,13 +85,29 @@ const getPermissionById = async (id) => {
   }
 };
 
-const getPermissionList = async (filters) => {
+const getPermissionList = async (page, limit, filters) => {
   try {
-    const permissionList = await Permission.find(filters).lean();
+    const totalCountPromise = Permission.countDocuments(filters);
+
+    let permissionListPromise;
+    if (page === 0 || limit === 0) {
+      permissionListPromise = Permission.find(filters).lean();
+    } else {
+      permissionListPromise = Permission.find(filters)
+        .skip(page - 1 * limit)
+        .limit(limit)
+        .lean();
+    }
+
+    const [totalCount, permissionList] = await Promise.all([
+      totalCountPromise,
+      permissionListPromise,
+    ]);
 
     return {
       message: `Get permission list successfully!`,
       data: permissionList,
+      count: totalCount,
     };
   } catch (error) {
     throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);

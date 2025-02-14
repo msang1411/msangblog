@@ -93,18 +93,30 @@ const getRoleById = async (id) => {
   }
 };
 
-const getRoleList = async () => {
+const getRoleList = async (page, limit, filters) => {
   try {
-    const roleList = await Role.find({ isDelete: false })
-      .populate({
-        path: "permissions",
-        model: "admin_permission",
-      })
-      .lean();
+    const totalCountPromise = Role.countDocuments(filters);
+
+    let roleListPromise;
+    if (page === 0 || limit === 0) {
+      roleListPromise = Role.find(filters).populate("permissions").lean();
+    } else {
+      roleListPromise = Role.find(filters)
+        .skip(page - 1 * limit)
+        .limit(limit)
+        .populate("permissions")
+        .lean();
+    }
+
+    const [totalCount, roleList] = await Promise.all([
+      totalCountPromise,
+      roleListPromise,
+    ]);
 
     return {
       message: `Get role list successfully!`,
       data: roleList,
+      count: totalCount,
     };
   } catch (error) {
     throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);

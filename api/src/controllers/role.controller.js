@@ -59,9 +59,9 @@ const getRoleList = async (req, res, next) => {
 
     return res.status(statusCode.OK).json({
       message: result.message,
-      page: result.page,
-      limit: result.limit,
-      totalCount: result.totalCount,
+      page: req.value.query.page,
+      limit: req.value.query.limit,
+      count: result.count,
       data: result.data,
     });
   } catch (error) {
