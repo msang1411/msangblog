@@ -4,6 +4,9 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 
 const { errorHandlingMiddleware } = require("./middlewares/errorHandling");
+const adminRouter = require("./routes/admin.route");
+const roleRouter = require("./routes/role.route");
+const permissionRouter = require("./routes/permission.route");
 //require routers
 
 const app = express();
@@ -19,6 +22,9 @@ app.use(bodyParser.json());
 require("./db/primaryDB");
 
 // Routers
+app.use("api/v1/admin/", adminRouter);
+app.use("api/v1/role/", roleRouter);
+app.use("api/v1/permission/", permissionRouter);
 
 // Middleware error handling
 app.use(errorHandlingMiddleware);

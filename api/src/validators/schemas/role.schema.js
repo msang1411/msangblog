@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-const createRoleSchema = Joi.object().keys({
+const roleCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
   description: Joi.string().optional(),
   createAt: Joi.date().default(Date.now),
@@ -28,7 +28,7 @@ const roleUpdateSchema = Joi.object().keys({
 });
 
 module.exports = {
-  createRoleSchema,
+  roleCreateSchema,
   roleFiltersSchema,
   roleUpdateSchema,
 };

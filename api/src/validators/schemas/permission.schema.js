@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-const createPermissionSchema = Joi.object().keys({
+const permissionCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
   code: Joi.string().required(),
   actions: Joi.array().min(1).required(),
@@ -26,7 +26,7 @@ const permissionUpdateSchema = Joi.object().keys({
 });
 
 module.exports = {
-  createPermissionSchema,
+  permissionCreateSchema,
   permissionFiltersSchema,
   permissionUpdateSchema,
 };
