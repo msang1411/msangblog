@@ -3,3 +3,4 @@ node_modules
 .env.*
 # src/configs/credentials.json
 # src/configs/ggdriveapikey.json
+token.txt
