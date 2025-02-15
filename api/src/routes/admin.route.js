@@ -60,11 +60,11 @@ router
     adminController.updateAdmin
   );
 
-router
-  .route("/test")
-  .get(verifyAccessToken, authorize("TEST2", "test"), (req, res, next) =>
-    res.json({ message: "ok" })
-  );
+// router
+//   .route("/test")
+//   .get(verifyAccessToken, authorize("TEST2", "test"), (req, res, next) =>
+//     res.json({ message: "ok" })
+//   );
 
 router
   .route("/:id")
