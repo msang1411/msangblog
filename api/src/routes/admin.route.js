@@ -10,6 +10,8 @@ const {
   changePasswordSchema,
   adminCreateSchema,
   adminFiltersSchema,
+  resetPassword,
+  signInSchema,
   adminUpdateSchema,
 } = require("../validators/schemas/admin.schema");
 const { idSchema } = require("../validators/schemas/id.schema");
@@ -39,6 +41,14 @@ router
     filtersValidate(adminFiltersSchema),
     adminController.getAdminList
   );
+
+router
+  .route("/reset-password")
+  .post(dataValidate(resetPassword), adminController.resetPassword);
+
+router
+  .route("/signin")
+  .post(dataValidate(signInSchema), adminController.signIn);
 
 router
   .route("/update/:id")

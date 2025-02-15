@@ -50,6 +50,18 @@ const adminFiltersSchema = Joi.object().keys({
 //     .items(Joi.string().regex(/^[0-9a-fA-F]{24}$/))
 //     .optional(),
 
+const resetPassword = Joi.object().keys({
+  userId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required(),
+  newPassword: Joi.string().min(8).max(32).required(),
+});
+
+const signInSchema = Joi.object().keys({
+  username: Joi.string().min(8).max(32).required(),
+  password: Joi.string().min(8).max(32).required(),
+});
+
 const adminUpdateSchema = Joi.object().keys({
   name: Joi.string().trim().optional(),
   phone: Joi.string()
@@ -74,5 +86,7 @@ module.exports = {
   changePasswordSchema,
   adminCreateSchema,
   adminFiltersSchema,
+  resetPassword,
+  signInSchema,
   adminUpdateSchema,
 };

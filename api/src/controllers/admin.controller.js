@@ -91,6 +91,49 @@ const getAdminList = async (req, res, next) => {
   }
 };
 
+const resetPassword = async (req, res, next) => {
+  try {
+    const result = await adminService.resetPassword(
+      req.value.data.userId,
+      req.value.data.newPassword
+    );
+
+    if (!result.status)
+      return res.status(statusCode.UNAUTHORIZED).json({
+        message: result.message,
+      });
+
+    return res.status(statusCode.OK).json({
+      message: result.message,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const signIn = async (req, res, next) => {
+  try {
+    const result = await adminService.signIn(
+      req.value.data.username,
+      req.value.data.password
+    );
+
+    if (!result.status)
+      return res.status(statusCode.UNAUTHORIZED).json({
+        message: result.message,
+      });
+
+    return res.status(statusCode.OK).json({
+      message: result.message,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: result.user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updateAdmin = async (req, res, next) => {
   try {
     const result = await adminService.updateAdmin(
@@ -102,6 +145,7 @@ const updateAdmin = async (req, res, next) => {
       return res.status(statusCode.NOT_FOUND).json({
         message: result.message,
       });
+
     return res.status(statusCode.OK).json({
       message: result.message,
       data: result.data,
@@ -117,5 +161,7 @@ module.exports = {
   deleteAdmin,
   getAdminById,
   getAdminList,
+  resetPassword,
+  signIn,
   updateAdmin,
 };

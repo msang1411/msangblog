@@ -4,6 +4,10 @@ const Admin = require("../models/Admin");
 const Role = require("../models/Role");
 const Permission = require("../models/Permission");
 const bcrypt = require("../helpers/bcrypt");
+const {
+  signAccessToken,
+  signRefreshToken,
+} = require("../authentication/authentication");
 
 const changePassword = async (id, oldPassword, newPassword) => {
   try {
@@ -174,12 +178,82 @@ const getAdminList = async (page, limit, filters) => {
   }
 };
 
+const resetPassword = async (userId, newPassword) => {
+  try {
+    const account = await Admin.findOne({
+      _id: userId,
+      isDelete: false,
+    });
+
+    if (!account)
+      return {
+        status: false,
+        message: "account not exist!",
+      };
+
+    const passwordHashed = await bcrypt.bcryptHash(newPassword);
+    account.password = passwordHashed;
+
+    await account.save();
+
+    return {
+      status: true,
+      message: "account has been reset password!",
+    };
+  } catch (error) {
+    throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const signIn = async (username, password) => {
+  try {
+    const account = await Admin.findOne({
+      username,
+      isDelete: false,
+    })
+      .populate({
+        path: "roles",
+        populate: {
+          path: "permissions",
+          select: "name code actions",
+        },
+        select: "name permission",
+      })
+      .populate("permissions", "name code actions")
+      .lean();
+
+    if (!account) {
+      return {
+        status: false,
+        message: "account not exist!",
+      };
+    }
+
+    const isValid = await bcrypt.compareHash(password, account.password);
+    if (!isValid) throw new ApiError(statusCode.UNAUTHORIZED, "wrong password");
+    delete account.password;
+
+    const accessToken = signAccessToken(account._id);
+    const refreshToken = signRefreshToken(account._id);
+
+    return {
+      status: true,
+      accessToken,
+      refreshToken,
+      user: account,
+      message: "login success!",
+    };
+  } catch (error) {
+    throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const updateAdmin = async (id, admin) => {
   try {
     const existedAdmin = await Admin.findOne({
       _id: id,
       isDelete: false,
-    }).select("-password");
+    });
 
     if (!existedAdmin)
       return { status: false, message: "Admin doesn't exist!" };
@@ -232,5 +306,7 @@ module.exports = {
   deleteAdmin,
   getAdminById,
   getAdminList,
+  resetPassword,
+  signIn,
   updateAdmin,
 };
