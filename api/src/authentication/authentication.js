@@ -5,6 +5,7 @@ const {
 const JWT = require("jsonwebtoken");
 const ApiError = require("../utils/ApiError");
 const statusCode = require("../utils/statusCode");
+const Admin = require("../models/Admin");
 
 const signAccessToken = (userId) => {
   try {
@@ -14,7 +15,7 @@ const signAccessToken = (userId) => {
       },
       ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "1 days",
+        expiresIn: "1 years",
       }
     );
   } catch (error) {
@@ -38,22 +39,50 @@ const signRefreshToken = (userId) => {
   }
 };
 
-const verifyAccessToken = (req, res, next) => {
-  if (!req.headers.authorization)
-    return next(new ApiError(statusCode.UNAUTHORIZED, "Unauthorized"));
-  const token = req.headers.authorization.split(" ")[1];
+const verifyAccessToken = async (req, res, next) => {
+  try {
+    if (!req.headers.authorization)
+      return next(new ApiError(statusCode.UNAUTHORIZED, "Unauthorized"));
+    const token = req.headers.authorization.split(" ")[1];
 
-  // start verify token
-  JWT.verify(token, ACCESS_TOKEN_SECRET, (err, payload) => {
-    if (err) {
-      if (err.name === "JsonWebTokenError")
-        return next(new ApiError(statusCode.UNAUTHORIZED, "Unauthorized"));
-      // Error token expired
-      return next(new ApiError(statusCode.UNAUTHORIZED, "token expired"));
-    }
-    req.payload = payload;
+    // start verify token
+    const payload = await new Promise((resolve, reject) => {
+      JWT.verify(token, ACCESS_TOKEN_SECRET, (err, payload) => {
+        if (err) {
+          if (err.name === "JsonWebTokenError") {
+            reject(new ApiError(statusCode.UNAUTHORIZED, "Unauthorized"));
+          } else {
+            reject(new ApiError(statusCode.UNAUTHORIZED, "token expired"));
+          }
+        } else {
+          resolve(payload);
+        }
+      });
+    });
+
+    req.user = await Admin.findById(payload.sub)
+      .select("-password")
+      .populate({
+        path: "roles",
+        populate: {
+          path: "permissions",
+          select: "name code actions",
+        },
+        select: "name permission",
+      })
+      .populate({
+        path: "permissions",
+        model: "permission",
+      })
+      .lean();
+
+    if (!req.user)
+      return next(new ApiError(statusCode.NOT_FOUND, "account was deleted"));
+
     next();
-  });
+  } catch (error) {
+    next(new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message));
+  }
 };
 
 const isAccessTokenExpired = async (bearerToken) => {
