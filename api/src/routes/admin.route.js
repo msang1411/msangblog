@@ -23,6 +23,8 @@ const { authorize } = require("../middlewares/authorization.js");
 router
   .route("/change-password/:id")
   .post(
+    verifyAccessToken,
+    authorize(("ADMIN_CHANGE_PASS", "change pass")),
     paramsValidate(idSchema),
     dataValidate(changePasswordSchema),
     adminController.changePassword
@@ -30,11 +32,21 @@ router
 
 router
   .route("/create")
-  .post(dataValidate(adminCreateSchema), adminController.createAdmin);
+  .post(
+    verifyAccessToken,
+    authorize(("ADMIN_CREATE", "create")),
+    dataValidate(adminCreateSchema),
+    adminController.createAdmin
+  );
 
 router
   .route("/delete/:id")
-  .delete(paramsValidate(idSchema), adminController.deleteAdmin);
+  .delete(
+    verifyAccessToken,
+    authorize(("ADMIN_DELETE", "delete")),
+    paramsValidate(idSchema),
+    adminController.deleteAdmin
+  );
 
 router
   .route("/get-list")
@@ -46,7 +58,12 @@ router
 
 router
   .route("/reset-password")
-  .post(dataValidate(resetPassword), adminController.resetPassword);
+  .post(
+    verifyAccessToken,
+    authorize(("ADMIN_RESET_PASSWORD", "reset password")),
+    dataValidate(resetPassword),
+    adminController.resetPassword
+  );
 
 router
   .route("/signin")
@@ -55,16 +72,12 @@ router
 router
   .route("/update/:id")
   .put(
+    verifyAccessToken,
+    authorize(("ADMIN_UPDATE", "update")),
     paramsValidate(idSchema),
     dataValidate(adminUpdateSchema),
     adminController.updateAdmin
   );
-
-// router
-//   .route("/test")
-//   .get(verifyAccessToken, authorize("TEST2", "test"), (req, res, next) =>
-//     res.json({ message: "ok" })
-//   );
 
 router
   .route("/:id")

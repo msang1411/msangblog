@@ -14,14 +14,26 @@ const {
 const { idSchema } = require("../validators/schemas/id.schema");
 const { paginationSchema } = require("../validators/schemas/pagination.schema");
 const roleController = require("../controllers/role.controller");
+const { verifyAccessToken } = require("../authentication/authentication.js");
+const { authorize } = require("../middlewares/authorization.js");
 
 router
   .route("/create")
-  .post(dataValidate(roleCreateSchema), roleController.createRole);
+  .post(
+    verifyAccessToken,
+    authorize(("ROLE_CREATE", "create")),
+    dataValidate(roleCreateSchema),
+    roleController.createRole
+  );
 
 router
   .route("/delete/:id")
-  .delete(paramsValidate(idSchema), roleController.deleteRole);
+  .delete(
+    verifyAccessToken,
+    authorize(("ROLE_DELETE", "delete")),
+    paramsValidate(idSchema),
+    roleController.deleteRole
+  );
 
 router
   .route("/get-list")
@@ -34,6 +46,8 @@ router
 router
   .route("/update/:id")
   .put(
+    verifyAccessToken,
+    authorize(("ROLE_UPDATE", "update")),
     paramsValidate(idSchema),
     dataValidate(roleUpdateSchema),
     roleController.updateRole

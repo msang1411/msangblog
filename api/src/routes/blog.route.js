@@ -15,16 +15,26 @@ const {
 const { idSchema } = require("../validators/schemas/id.schema");
 const { paginationSchema } = require("../validators/schemas/pagination.schema");
 const blogController = require("../controllers/blog.controller");
-// const { verifyAccessToken } = require("../authentication/authentication.js");
-// const { authorize } = require("../middlewares/authorization.js");
+const { verifyAccessToken } = require("../authentication/authentication.js");
+const { authorize } = require("../middlewares/authorization.js");
 
 router
   .route("/create")
-  .post(dataValidate(blogCreateSchema), blogController.createBlog);
+  .post(
+    verifyAccessToken,
+    authorize(("BLOG_CREATE", "create")),
+    dataValidate(blogCreateSchema),
+    blogController.createBlog
+  );
 
 router
   .route("/delete/:id")
-  .delete(paramsValidate(idSchema), blogController.deleteBlog);
+  .delete(
+    verifyAccessToken,
+    authorize(("BLOG_DELETE", "delete")),
+    paramsValidate(idSchema),
+    blogController.deleteBlog
+  );
 
 router.route("/get").get(queryValidate(idSchema), blogController.getBlogById);
 
@@ -39,6 +49,8 @@ router
 router
   .route("/update/:id")
   .put(
+    verifyAccessToken,
+    authorize(("BLOG_UPDATE", "update")),
     paramsValidate(idSchema),
     dataValidate(blogUpdateSchema),
     blogController.updateBlog
