@@ -8,28 +8,30 @@ const InputStandard = ({
   autoFocus,
   value,
   onChange,
+  id,
 }) => {
   return (
     <>
       <div className={className}>
-        <div className="relative w-full max-w-xs">
+        <div className="relative w-full max-w-xs my-3 py-1">
           <input
-            id="textfield"
+            id={id}
             type={type}
             placeholder=""
             required={isRequired}
             autoFocus={autoFocus}
             value={value}
             onChange={onChange}
-            className="peer w-full border-0 border-b-2 border-gray-300 bg-transparent px-2 pb-2 text-gray-900 outline-none focus:border-blue-500"
+            className="peer w-full border-0 border-b-2 border-gray-300 bg-transparent 
+            px-2 pb-2 text-gray-900 outline-none focus:border-blue-500"
           />
           <label
-            htmlFor="textfield"
-            className="absolute left-2 top-4 text-gray-500 transition-all  
+            htmlFor={id}
+            className="absolute left-2 top-4 text-gray-500 transition-all pointer-events-none 
                 peer-placeholder-shown:top-1 peer-placeholder-shown:text-base 
-                peer-placeholder-shown:text-gray-400  peer-[:not(:placeholder-shown)]:-top-4 
+                peer-placeholder-shown:text-gray-400  peer-[:not(:placeholder-shown)]:-top-3 
                 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-gray-500
-                peer-focus:-top-4 peer-focus:text-xs peer-focus:!text-blue-500 peer-focus:animate-fadeInOut"
+                peer-focus:-top-3 peer-focus:text-xs peer-focus:!text-blue-500 peer-focus:animate-fadeInOut"
           >
             {children}
           </label>
@@ -49,6 +51,7 @@ InputStandard.propTypes = {
   autoFocus: PropTypes.bool,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func,
+  id: PropTypes.string,
 };
 
 InputStandard.defaultProps = {
@@ -58,5 +61,6 @@ InputStandard.defaultProps = {
   autoFocus: false,
   value: "",
   onChange: () => {},
+  id: "textfield",
 };
 export default InputStandard;
