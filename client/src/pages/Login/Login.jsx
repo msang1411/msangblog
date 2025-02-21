@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import statusCode from "../../utils/statusCode";
 import AdminService from "../../services/admin.service";
 import InputStandard from "../../components/Input/InputStandard";
@@ -14,6 +15,8 @@ const Login = () => {
 
   const onUsernameChange = (event) => setUsername(event.target.value);
   const onPasswordChange = (event) => setPassword(event.target.value);
+
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -32,7 +35,7 @@ const Login = () => {
         localStorage.setItem("refreshToken", response.data.refreshToken);
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        // directory home page
+        navigate("/");
       }
     } catch (error) {
       console.error(error);
