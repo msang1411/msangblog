@@ -1,5 +1,6 @@
 import bgImage from "../../assets/img/login-background.jpg";
 import InputStandard from "../../components/Input/InputStandard";
+import InputPassword from "../../components/Input/InputPassword";
 import Button from "../../components/Button/Button";
 
 const Login = () => {
@@ -14,14 +15,12 @@ const Login = () => {
             className="w-96 mt-20 bg-slate-100 flex justify-center flex-col items-center pt-8 
           rounded-lg shadow-md"
           >
-            <h1 className="text-black text-3xl my-8 font-[Poppins]">Login</h1>
+            <h1 className="text-black text-5xl my-8 font-[Poppins]">Login</h1>
             <form className="flex justify-center flex-col w-full px-12">
               <InputStandard type="text" isRequired={true}>
                 username
               </InputStandard>
-              <InputStandard type="password" isRequired={true}>
-                password
-              </InputStandard>
+              <InputPassword />
               <Button
                 type="submit"
                 className={"bg-gradient-to-r from-cyan-200 to-violet-500 my-10"}
