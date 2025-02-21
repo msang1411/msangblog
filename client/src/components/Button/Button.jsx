@@ -30,7 +30,7 @@ Button.propTypes = {
 
 Button.defaultProps = {
   className: "",
-  type: "submit",
+  type: "button",
   onClick: () => {},
   disabled: false,
 };
