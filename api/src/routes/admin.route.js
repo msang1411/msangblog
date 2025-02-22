@@ -31,6 +31,10 @@ router
   );
 
 router
+  .route("/verify-access-token")
+  .get(adminController.checkAccessTokenExpired);
+
+router
   .route("/create")
   .post(
     verifyAccessToken,
@@ -56,6 +60,8 @@ router
     adminController.getAdminList
   );
 
+router.route("/refresh-token").get(adminController.refreshToken);
+
 router
   .route("/reset-password")
   .post(
@@ -78,6 +84,8 @@ router
     dataValidate(adminUpdateSchema),
     adminController.updateAdmin
   );
+
+router.route("/test").get(adminController.checkAccessTokenExpired);
 
 router
   .route("/:id")

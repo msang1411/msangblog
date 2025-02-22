@@ -5,9 +5,12 @@ const Role = require("../models/Role");
 const Permission = require("../models/Permission");
 const bcrypt = require("../helpers/bcrypt");
 const {
+  isAccessTokenExpired,
   signAccessToken,
   signRefreshToken,
+  verifyRefreshToken,
 } = require("../authentication/authentication");
+const { setCache, getCache } = require("../services/redis.service");
 
 const changePassword = async (id, oldPassword, newPassword) => {
   try {
@@ -31,6 +34,24 @@ const changePassword = async (id, oldPassword, newPassword) => {
     await admin.save();
 
     return { status: true, message: "Account has been changed password!" };
+  } catch (error) {
+    throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const checkAccessTokenExpired = async (bearerToken) => {
+  try {
+    if (!bearerToken)
+      throw new ApiError(
+        statusCode.UNAUTHORIZED,
+        "Missing Authorization header"
+      );
+
+    const isExpired = await isAccessTokenExpired(bearerToken);
+    return {
+      isExpired,
+      message: isExpired ? "Token was expired" : "Token was not expired",
+    };
   } catch (error) {
     throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -178,6 +199,34 @@ const getAdminList = async (page, limit, filters) => {
   }
 };
 
+const refreshToken = async (bearerRefreshToken) => {
+  try {
+    if (!bearerRefreshToken)
+      throw new ApiError(statusCode.BAD_REQUEST, "Refresh token null");
+
+    const refreshToken = bearerRefreshToken.split(" ")[1];
+    const { sub } = await verifyRefreshToken(refreshToken);
+
+    const newAccessToken = signAccessToken(sub);
+    const newRefreshToken = signRefreshToken(sub);
+    const existRefreshToken = await getCache("refresh_token:" + sub);
+
+    if (!existRefreshToken)
+      throw new ApiError(statusCode.UNAUTHORIZED, "Refresh token not match");
+    if (existRefreshToken !== refreshToken)
+      throw new ApiError(
+        statusCode.UNAUTHORIZED,
+        "Refresh token expired or logout"
+      );
+
+    await setCache("refresh_token:" + sub, newRefreshToken);
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  } catch (error) {
+    throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const resetPassword = async (userId, newPassword) => {
   try {
     const account = await Admin.findOne({
@@ -235,6 +284,8 @@ const signIn = async (username, password) => {
 
     const accessToken = signAccessToken(account._id);
     const refreshToken = signRefreshToken(account._id);
+
+    await setCache("refresh_token:" + account._id, refreshToken);
 
     return {
       status: true,
@@ -302,10 +353,12 @@ const updateAdmin = async (id, admin) => {
 
 module.exports = {
   changePassword,
+  checkAccessTokenExpired,
   createAdmin,
   deleteAdmin,
   getAdminById,
   getAdminList,
+  refreshToken,
   resetPassword,
   signIn,
   updateAdmin,

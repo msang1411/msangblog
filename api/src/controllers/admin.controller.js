@@ -23,6 +23,27 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+const checkAccessTokenExpired = async (req, res, next) => {
+  try {
+    const result = await adminService.checkAccessTokenExpired(
+      req.headers.authorization
+    );
+
+    if (result.status)
+      return res.status(statusCode.UNAUTHORIZED).json({
+        isExpired: result.isExpired,
+        message: result.message,
+      });
+
+    return res.status(statusCode.OK).json({
+      isExpired: result.isExpired,
+      message: result.message,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createAdmin = async (req, res, next) => {
   try {
     const result = await adminService.createAdmin(req.value.data);
@@ -31,6 +52,7 @@ const createAdmin = async (req, res, next) => {
       return res.status(statusCode.CONFLICT).json({
         message: result.message,
       });
+
     return res.status(statusCode.CREATED).json({
       message: result.message,
     });
@@ -85,6 +107,21 @@ const getAdminList = async (req, res, next) => {
       limit: req.value.query.limit,
       count: result.count,
       data: result.data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const refreshToken = async (req, res, next) => {
+  try {
+    if (!req.headers.authorization)
+      return next(new ApiError(statusCode.UNAUTHORIZED, "Unauthorized"));
+
+    const result = await adminService.refreshToken(req.headers.authorization);
+    return res.status(statusCode.OK).json({
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
     });
   } catch (error) {
     next(error);
@@ -157,10 +194,12 @@ const updateAdmin = async (req, res, next) => {
 
 module.exports = {
   changePassword,
+  checkAccessTokenExpired,
   createAdmin,
   deleteAdmin,
   getAdminById,
   getAdminList,
+  refreshToken,
   resetPassword,
   signIn,
   updateAdmin,

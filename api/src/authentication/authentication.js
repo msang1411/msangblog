@@ -15,7 +15,7 @@ const signAccessToken = (userId) => {
       },
       ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "1 years",
+        expiresIn: "3 days",
       }
     );
   } catch (error) {
