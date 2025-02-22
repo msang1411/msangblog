@@ -30,6 +30,22 @@ const AdminService = {
       return error.response;
     }
   },
+  logout: async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      const headers = {
+        Authorization: `Bearer ${refreshToken}`,
+      };
+
+      const response = await axios.get(`${API_URL}/logout`, {
+        headers,
+      });
+
+      return response;
+    } catch (error) {
+      return error.response;
+    }
+  },
   refreshToken: async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
