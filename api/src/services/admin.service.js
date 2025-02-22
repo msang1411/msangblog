@@ -10,7 +10,11 @@ const {
   signRefreshToken,
   verifyRefreshToken,
 } = require("../authentication/authentication");
-const { setCache, getCache } = require("../services/redis.service");
+const {
+  setCache,
+  getCache,
+  deleteCache,
+} = require("../services/redis.service");
 
 const changePassword = async (id, oldPassword, newPassword) => {
   try {
@@ -199,6 +203,22 @@ const getAdminList = async (page, limit, filters) => {
   }
 };
 
+const logout = async (bearerRefreshToken) => {
+  try {
+    if (!bearerRefreshToken)
+      throw new ApiError(statusCode.BAD_REQUEST, "Refresh token null");
+
+    const refreshToken = bearerRefreshToken.split(" ")[1];
+    const { sub } = await verifyRefreshToken(refreshToken);
+
+    await deleteCache("refresh_token:" + sub);
+
+    return { message: "Deleted successfully" };
+  } catch (error) {
+    throw new ApiError(statusCode.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const refreshToken = async (bearerRefreshToken) => {
   try {
     if (!bearerRefreshToken)
@@ -358,6 +378,7 @@ module.exports = {
   deleteAdmin,
   getAdminById,
   getAdminList,
+  logout,
   refreshToken,
   resetPassword,
   signIn,

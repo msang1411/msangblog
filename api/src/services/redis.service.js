@@ -47,4 +47,21 @@ const getCache = async (key) => {
   }
 };
 
-module.exports = { setCache, getCache };
+const deleteCache = async (key) => {
+  try {
+    if (typeof key !== "string") {
+      throw new ApiError(
+        statusCode.BAD_REQUEST,
+        `Key must be a string, received: ${typeof key}`
+      );
+    }
+
+    const data = await redisClient.del(key);
+    return data ? JSON.parse(data) : null;
+  } catch (err) {
+    console.error("❌ Error getting cache:", err);
+    return null;
+  }
+};
+
+module.exports = { setCache, getCache, deleteCache };

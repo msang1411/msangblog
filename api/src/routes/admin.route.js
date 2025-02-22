@@ -60,6 +60,8 @@ router
     adminController.getAdminList
   );
 
+router.route("/logout").get(adminController.logout);
+
 router.route("/refresh-token").get(adminController.refreshToken);
 
 router

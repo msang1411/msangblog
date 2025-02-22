@@ -113,6 +113,20 @@ const getAdminList = async (req, res, next) => {
   }
 };
 
+const logout = async (req, res, next) => {
+  try {
+    if (!req.headers.authorization)
+      return next(new ApiError(statusCode.UNAUTHORIZED, "Unauthorized"));
+
+    const result = await adminService.logout(req.headers.authorization);
+    return res.status(statusCode.OK).json({
+      message: result.message,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const refreshToken = async (req, res, next) => {
   try {
     if (!req.headers.authorization)
@@ -199,6 +213,7 @@ module.exports = {
   deleteAdmin,
   getAdminById,
   getAdminList,
+  logout,
   refreshToken,
   resetPassword,
   signIn,
