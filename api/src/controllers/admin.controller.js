@@ -29,7 +29,7 @@ const checkAccessTokenExpired = async (req, res, next) => {
       req.headers.authorization
     );
 
-    if (result.status)
+    if (result.isExpired)
       return res.status(statusCode.UNAUTHORIZED).json({
         isExpired: result.isExpired,
         message: result.message,
