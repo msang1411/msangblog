@@ -18,6 +18,8 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 
 // CORS
+const cors = require("cors");
+app.use(cors());
 
 // Database
 require("./db/primaryDB");
