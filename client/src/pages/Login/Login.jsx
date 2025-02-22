@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import statusCode from "../../utils/statusCode";
 import AdminService from "../../services/admin.service";
@@ -43,6 +43,39 @@ const Login = () => {
       setIsIncorrect(true);
     }
   };
+
+  useEffect(() => {
+    const checkAccessTokenExpired = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (accessToken) {
+          const response = await AdminService.checkAccessTokenExpired();
+          console.log("access", response);
+          if (response.data.isExpired !== true) {
+            navigate("/");
+          } else {
+            const refreshTokenResponse = await AdminService.refreshToken();
+            console.log("refresh", refreshTokenResponse);
+            if (refreshTokenResponse.status === statusCode.OK) {
+              localStorage.setItem(
+                "accessToken",
+                refreshTokenResponse.data.accessToken
+              );
+              localStorage.setItem(
+                "refreshToken",
+                refreshTokenResponse.data.refreshToken
+              );
+              navigate("/");
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    checkAccessTokenExpired();
+  }, [navigate]);
 
   return (
     <>
