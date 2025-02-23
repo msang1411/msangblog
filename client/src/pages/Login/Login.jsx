@@ -36,6 +36,9 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         navigate("/");
+      } else {
+        setErrorAlert("something wrong!");
+        console.error(response.error);
       }
     } catch (error) {
       console.error(error);
@@ -50,12 +53,12 @@ const Login = () => {
         const accessToken = localStorage.getItem("accessToken");
         if (accessToken) {
           const response = await AdminService.checkAccessTokenExpired();
-          console.log("access", response);
+
           if (response.data.isExpired !== true) {
             navigate("/");
           } else {
             const refreshTokenResponse = await AdminService.refreshToken();
-            console.log("refresh", refreshTokenResponse);
+
             if (refreshTokenResponse.status === statusCode.OK) {
               localStorage.setItem(
                 "accessToken",
@@ -66,11 +69,15 @@ const Login = () => {
                 refreshTokenResponse.data.refreshToken
               );
               navigate("/");
+            } else {
+              setErrorAlert("something wrong!");
+              console.error(refreshTokenResponse.error);
             }
           }
         }
       } catch (error) {
         console.error(error);
+        setErrorAlert("something wrong!");
       }
     };
 
