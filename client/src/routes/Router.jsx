@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateLayout from "../layouts/PrivateLayout";
 
 const Login = lazy(() => import("../pages/Login/Login"));
+const NewPost = lazy(() => import("../pages/Blog/NewPost"));
 const Home = lazy(() => import("../pages/Home/Home"));
 
 export default function AppRouter() {
@@ -13,10 +14,19 @@ export default function AppRouter() {
           <Route exact path="/login" element={<Login />} />
 
           <Route
+            path="/blog/new-post"
+            element={
+              <PrivateLayout>
+                <NewPost />
+              </PrivateLayout>
+            }
+          />
+
+          <Route
             path="/"
             element={
               <PrivateLayout>
-                <Home />{" "}
+                <Home />
               </PrivateLayout>
             }
           />

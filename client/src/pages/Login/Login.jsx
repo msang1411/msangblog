@@ -112,7 +112,7 @@ const Login = () => {
               <Button
                 onClick={handleLogin}
                 className={
-                  "bg-gradient-to-r from-cyan-200 to-violet-500 my-10 shadow-md shadow-orange-200"
+                  " mx-auto bg-gradient-to-r from-cyan-200 to-violet-500 my-10 shadow-md shadow-orange-200"
                 }
               >
                 Login
