@@ -8,6 +8,7 @@ const adminRouter = require("./routes/admin.route");
 const roleRouter = require("./routes/role.route");
 const permissionRouter = require("./routes/permission.route");
 const blogRouter = require("./routes/blog.route");
+const apiKeysRouter = require("./routes/apiKeys.route");
 //require routers
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/role", roleRouter);
 app.use("/api/v1/permission", permissionRouter);
 app.use("/api/v1/blog", blogRouter);
+app.use("/api/v1/api-key", apiKeysRouter);
 
 // Middleware error handling
 app.use(errorHandlingMiddleware);

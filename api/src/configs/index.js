@@ -11,4 +11,5 @@ module.exports = {
     "MongoDB",
   ],
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+  TINYMCE_EDITOR_API_KEY: process.env.TINYMCE_EDITOR_API_KEY,
 };
